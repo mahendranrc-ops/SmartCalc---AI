@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827"><title>SmartCalc AI v0.3</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d2e;--panel2:#1a2940;--text:#f4f7fb;--muted:#aab8ca;--accent:#35c98a;--line:#2a3a52}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui,Arial}
+header{padding:20px 16px 14px;background:linear-gradient(135deg,#172b45,#0b1220)}
+h1{margin:0;font-size:25px}header p{margin:5px 0 0;color:var(--muted);font-size:12px}
+main{padding:12px;max-width:680px;margin:auto}.tabs{display:flex;gap:7px;overflow-x:auto;padding:3px 0 10px}
+button:disabled{opacity:.55}button{border:0;border-radius:11px;padding:11px 13px;background:var(--panel2);color:var(--text);font-weight:650;white-space:nowrap}
+.tab.active,button.primary{background:var(--accent);color:#062116}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:15px;margin:10px 0}
+label{display:block;color:var(--muted);font-size:12px;margin:10px 0 5px}
+input,select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0c1626;color:var(--text);font-size:16px}
+.result{font-size:24px;font-weight:750;color:var(--accent);margin-top:12px;overflow-wrap:anywhere}
+.small{color:var(--muted);font-size:12px;line-height:1.5}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}.hidden{display:none}
+.display{font-size:27px;text-align:right;min-height:52px;padding:12px;background:#08111e;border-radius:11px;overflow:auto}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px}.keys button{font-size:18px;padding:15px 3px}
+.item{padding:10px 0;border-bottom:1px solid var(--line)}.item:last-child{border:0}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+</style></head>
+<body>
+<header><h1>SmartCalc AI ✨</h1><p>Your Everyday Intelligent Calculator · Version 0.3</p></header>
+<main>
+<nav class="tabs">
+<button class="tab active" data-page="basic">Calculator</button>
+<button class="tab" data-page="gst">GST</button>
+<button class="tab" data-page="business">Business</button>
+<button class="tab" data-page="finance">EMI</button>
+<button class="tab" data-page="converter">Convert</button>
+<button class="tab" data-page="assistant">AI / Voice / Scan</button>
+<button class="tab" data-page="history">History</button>
+</nav>
+
+<section id="basic" class="page">
+<div class="card"><b>Advanced Calculator</b><div id="display" class="display">0</div>
+<div class="keys">
+<button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button data-k="/">÷</button>
+<button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button data-k="*">×</button>
+<button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button data-k="-">−</button>
+<button data-k="0">0</button><button data-k=".">.</button><button id="clear">C</button><button data-k="+">+</button>
+<button data-k="(">(</button><button data-k=")">)</button><button id="back">⌫</button><button class="primary" id="equals">=</button>
+<button data-f="sqrt">√</button><button data-f="square">x²</button><button data-f="percent">%</button><button id="copy">Copy</button>
+</div><p class="small">Tip: Enter 200*1.18 or (500+200)/2. Percentage button applies percent to current number.</p></div>
+</section>
+
+<section id="gst" class="page hidden"><div class="card"><b>GST Calculator</b>
+<label>Amount (₹)</label><input id="gstAmount" type="number" inputmode="decimal" value="15000">
+<label>GST rate</label><select id="gstRate"><option>5</option><option>12</option><option selected>18</option><option>28</option></select>
+<label>Mode</label><select id="gstType"><option value="add">Add GST (exclusive)</option><option value="remove">Extract GST (inclusive)</option></select>
+<label>Tax type</label><select id="taxType"><option value="intra">Intra-state (CGST + SGST)</option><option value="inter">Inter-state (IGST)</option></select>
+<div id="gstResult" class="result"></div><p id="gstBreak" class="small"></p></div></section>
+
+<section id="business" class="page hidden"><div class="card"><b>Business Calculator</b>
+<label>Cost / Purchase price (₹)</label><input id="cost" type="number" inputmode="decimal" value="1000">
+<div class="grid"><div><label>Selling price (₹)</label><input id="selling" type="number" inputmode="decimal" value="1250"></div><div><label>Quantity</label><input id="qty" type="number" inputmode="decimal" value="1"></div></div>
+<div id="businessResult" class="result"></div><p id="businessBreak" class="small"></p>
+<hr style="border-color:var(--line);margin:15px 0">
+<b>Find selling price from markup</b><label>Purchase price (₹)</label><input id="markupCost" type="number" inputmode="decimal" value="1000">
+<label>Markup (%)</label><input id="markupRate" type="number" inputmode="decimal" value="20">
+<div id="markupResult" class="result">₹1,200.00</div></div></section>
+
+<section id="finance" class="page hidden"><div class="card"><b>EMI Calculator</b>
+<label>Loan amount (₹)</label><input id="loan" type="number" inputmode="decimal" value="500000">
+<div class="grid"><div><label>Annual interest (%)</label><input id="interest" type="number" inputmode="decimal" value="10"></div><div><label>Tenure (months)</label><input id="months" type="number" inputmode="numeric" value="60"></div></div>
+<div id="emiResult" class="result"></div><p id="emiBreak" class="small"></p></div></section>
+
+<section id="converter" class="page hidden"><div class="card"><b>Unit Converter</b>
+<label>Value</label><input id="unitValue" type="number" inputmode="decimal" value="1">
+<label>Convert</label><select id="unitType"><option value="ftm">Feet → Meter</option><option value="mft">Meter → Feet</option><option value="ink">Inch → Centimeter</option><option value="kg">Kilogram → Gram</option><option value="l">Liter → Milliliter</option><option value="sq">Square feet → Square meter</option><option value="hp">HP → kW</option><option value="kw">kW → HP</option></select>
+<div id="unitResult" class="result"></div></div></section>
+
+<section id="assistant" class="page hidden">
+<div class="card"><b>Smart Assistant – v0.3 Beta</b>
+<p class="small">Ask calculation questions in simple English or Hindi. This beta works offline for supported calculation patterns. Full cloud-based conversational AI will need a secure server connection in a later step.</p>
+<label>Your question</label><input id="question" placeholder="e.g. Add 18% GST to 2500 / 2500 का 18 प्रतिशत">
+<div class="row" style="margin-top:10px"><button class="primary" id="ask">Calculate</button><button id="voice">🎙 Speak</button></div>
+<label>Voice language</label><select id="voiceLang"><option value="hi-IN">Hindi</option><option value="en-IN">English (India)</option></select>
+<div id="answer" class="result" style="font-size:19px">Your answer appears here.</div><p id="voiceStatus" class="small">Tap Speak and allow microphone access. Voice recognition works best in Chrome with internet access.</p></div>
+<div class="card"><b>Photo Scanner (OCR) – Beta</b>
+<p class="small">Choose a photo of a bill, invoice or handwritten/printed calculation. OCR will try to read the text. Review it before using the numbers.</p>
+<label>Select photo</label><input id="scanImage" type="file" accept="image/*" capture="environment">
+<img id="scanPreview" class="hidden" alt="Selected bill preview" style="width:100%;max-height:240px;object-fit:contain;border-radius:12px;margin-top:10px">
+<div class="row" style="margin-top:10px"><button class="primary" id="scanBtn">Read Photo</button><button id="clearScan">Clear</button></div>
+<p id="scanStatus" class="small">OCR requires internet on first use to load its text-reading engine.</p>
+<label>Recognised text (please verify)</label><textarea id="scanText" rows="5" style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0c1626;color:var(--text);font:14px system-ui"></textarea>
+<button id="useScan" style="margin-top:10px">Use text in Assistant</button>
+</div></section>
+
+<section id="history" class="page hidden"><div class="card"><div class="row" style="align-items:center"><b>Calculation History</b><button id="clearHistory">Clear all</button></div><div id="historyList" class="small" style="margin-top:10px">No saved calculations yet.</div></div></section>
+<footer>SmartCalc AI · Version 0.3 · AI Assistant and Photo Scanner are beta features. Verify OCR digits and all important calculations.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(n);
+let expr='',history=JSON.parse(localStorage.getItem('sca_history')||'[]');
+function addHistory(label,result){history.unshift({label,result,at:new Date().toLocaleString()});history=history.slice(0,50);localStorage.setItem('sca_history',JSON.stringify(history));renderHistory()}
+function renderHistory(){$('historyList').innerHTML=history.length?history.map(x=>`<div class="item"><b>${escapeHtml(x.label)}</b><br><span style="color:var(--accent)">${escapeHtml(x.result)}</span><br><span>${escapeHtml(x.at)}</span></div>`).join(''):'No saved calculations yet.'}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function show(){ $('display').textContent=expr||'0' }
+document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{expr+=b.dataset.k;show()});
+$('clear').onclick=()=>{expr='';show()};$('back').onclick=()=>{expr=expr.slice(0,-1);show()};
+function safeEval(s){if(!/^[0-9+\-*/().\s]+$/.test(s))throw Error('Invalid');let v=Function('"use strict";return ('+s+')')();if(!Number.isFinite(v))throw Error('Invalid');return v}
+$('equals').onclick=()=>{try{let old=expr,v=safeEval(expr);expr=String(Number(v.toFixed(10)));show();addHistory(old,expr)}catch(e){$('display').textContent='Invalid expression';expr=''}};
+document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{try{let n=safeEval(expr||'0'),f=b.dataset.f,v=f==='sqrt'?Math.sqrt(n):f==='square'?n*n:n/100;if(!Number.isFinite(v))throw 0;let old=expr;expr=String(Number(v.toFixed(10)));show();addHistory(f+'('+old+')',expr)}catch(e){$('display').textContent='Invalid input'}});
+$('copy').onclick=()=>{navigator.clipboard?.writeText(expr).then(()=>$('copy').textContent='Copied').catch(()=>{});};
+function gst(){let a=+$('gstAmount').value||0,r=(+$('gstRate').value||0)/100,mode=$('gstType').value,inter=$('taxType').value==='inter';let base,tax,total;if(mode==='add'){base=a;tax=a*r;total=base+tax}else{total=a;base=a/(1+r);tax=total-base}let taxLabel=inter?`IGST: ${fmt(tax)}`:`CGST: ${fmt(tax/2)} · SGST: ${fmt(tax/2)}`;$('gstResult').textContent=fmt(total);$('gstBreak').textContent=`Taxable value: ${fmt(base)} · ${taxLabel} · Total GST: ${fmt(tax)}`;addDebounced('gst',fmt(total))}
+function business(){let c=+$('cost').value||0,s=+$('selling').value||0,q=+$('qty').value||0,p=(s-c)*q,margin=s?((s-c)/s*100):0,markup=c?((s-c)/c*100):0;$('businessResult').textContent=(p>=0?'Profit: ':'Loss: ')+fmt(Math.abs(p));$('businessBreak').textContent=`Total cost: ${fmt(c*q)} · Total sales: ${fmt(s*q)} · Margin: ${margin.toFixed(2)}% · Markup: ${markup.toFixed(2)}%`;let mc=+$('markupCost').value||0,mr=+$('markupRate').value||0;$('markupResult').textContent=fmt(mc*(1+mr/100))}
+function emi(){let p=+$('loan').value||0,r=(+$('interest').value||0)/1200,n=+$('months').value||0;if(!n){$('emiResult').textContent='Enter tenure';return}let e=r===0?p/n:p*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1),total=e*n;$('emiResult').textContent='Monthly EMI: '+fmt(e);$('emiBreak').textContent=`Total repayment: ${fmt(total)} · Total interest: ${fmt(total-p)}`}
+const conversions={ftm:[.3048,'m'],mft:[3.280839895,'ft'],ink:[2.54,'cm'],kg:[1000,'g'],l:[1000,'ml'],sq:[.092903,'m²'],hp:[.7457,'kW'],kw:[1/.7457,'HP']};
+function convert(){let v=+$('unitValue').value||0,[factor,u]=conversions[$('unitType').value];$('unitResult').textContent=(v*factor).toLocaleString('en-IN',{maximumFractionDigits:5})+' '+u}
+function addDebounced(){} // no history spam from live GST field edits
+['gstAmount','gstRate','gstType','taxType'].forEach(id=>$(id).addEventListener('input',gst));
+['cost','selling','qty','markupCost','markupRate'].forEach(id=>$(id).addEventListener('input',business));
+['loan','interest','months'].forEach(id=>$(id).addEventListener('input',emi));
+['unitValue','unitType'].forEach(id=>$(id).addEventListener('input',convert));
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.page').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.page))});
+function parseAssistantQuestion(raw){
+ let q=raw.toLowerCase().replace(/₹|rs\.?|rupees?/g,' ').replace(/,/g,'').trim();
+ const nums=q.match(/-?\d+(?:\.\d+)?/g)||[];
+ // Percentage of: "18% of 2500", "2500 ka 18 percent", Hindi speech variants
+ let m=q.match(/(\d+(?:\.\d+)?)\s*%\s*(?:of|का|का कितना|percent of)?\s*(\d+(?:\.\d+)?)/i);
+ if(m){let p=+m[1],a=+m[2],v=a*p/100;return [`${p}% of ${fmt(a)} = ${fmt(v)}`,v]}
+ m=q.match(/(\d+(?:\.\d+)?)\s*(?:का|ka|par|पर)\s*(\d+(?:\.\d+)?)\s*(?:%|percent|प्रतिशत)/i);
+ if(m){let a=+m[1],p=+m[2],v=a*p/100;return [`${fmt(a)} का ${p}% = ${fmt(v)}`,v]}
+ // Add GST / GST inclusive
+ m=q.match(/(?:add|जोड़|jod|लगाओ|include)?\s*(\d+(?:\.\d+)?)\s*%\s*(?:gst|जीएसटी)\s*(?:on|to|पर|में)?\s*(\d+(?:\.\d+)?)/i);
+ if(m){let p=+m[1],a=+m[2],tax=a*p/100,total=a+tax;return [`Taxable value: ${fmt(a)} · GST ${p}%: ${fmt(tax)} · Total: ${fmt(total)}`,total]}
+ m=q.match(/(\d+(?:\.\d+)?)\s*(?:par|पर|में)\s*(\d+(?:\.\d+)?)\s*%\s*(?:gst|जीएसटी)?\s*(?:जोड़|jod|add)?/i);
+ if(m){let a=+m[1],p=+m[2],tax=a*p/100,total=a+tax;return [`Taxable value: ${fmt(a)} · GST ${p}%: ${fmt(tax)} · Total: ${fmt(total)}`,total]}
+ m=q.match(/(?:remove|निकाल|extract)\s*(\d+(?:\.\d+)?)\s*%\s*(?:gst)?\s*(?:from|से)?\s*(\d+(?:\.\d+)?)/i);
+ if(m){let p=+m[1],total=+m[2],base=total/(1+p/100),tax=total-base;return [`Taxable value: ${fmt(base)} · GST ${p}%: ${fmt(tax)} · Inclusive total: ${fmt(total)}`,base]}
+ // Basic arithmetic when user enters a plain expression
+ let expr=q.replace(/\bplus\b|जोड़/gi,'+').replace(/\bminus\b|घटाओ/gi,'-').replace(/\btimes\b|गुना/gi,'*').replace(/\bdivided by\b|भाग/gi,'/');
+ if(/^[0-9+*\/().\s-]+$/.test(expr)&&/[0-9]/.test(expr)){let v=safeEval(expr);return [`${expr} = ${v.toLocaleString('en-IN',{maximumFractionDigits:6})}`,v]}
+ return null;
+}
+$('ask').onclick=()=>{
+ let q=$('question').value.trim();if(!q){$('answer').textContent='Please type or speak a calculation.';return}
+ try{let parsed=parseAssistantQuestion(q);if(parsed){$('answer').textContent=parsed[0];addHistory(q,parsed[0])}
+ else $('answer').textContent='I could not recognise that yet. Try: “18% of 2500”, “Add 18% GST to 2500”, or “1250 + 450”.';
+ }catch(e){$('answer').textContent='Please check the numbers and try again.'}
+};
+$('voice').onclick=()=>{
+ let SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){$('voiceStatus').textContent='Voice recognition is not supported in this browser. Please try Google Chrome.';return}
+ let rec=new SR();rec.lang=$('voiceLang').value;rec.interimResults=false;rec.maxAlternatives=1;
+ rec.onresult=e=>{$('question').value=e.results[0][0].transcript;$('voiceStatus').textContent='Voice captured. Tap Calculate if the answer does not appear automatically.';$('ask').click()};
+ rec.onerror=e=>$('voiceStatus').textContent='Microphone/voice error: '+e.error+'. Check browser microphone permission.';
+ rec.onend=()=>{};$('voiceStatus').textContent='Listening… please speak now.';try{rec.start()}catch(e){$('voiceStatus').textContent='Voice session could not start. Try again.'}
+};
+let selectedScanFile=null;
+$('scanImage').onchange=e=>{
+ selectedScanFile=e.target.files&&e.target.files[0];
+ if(selectedScanFile){$('scanPreview').src=URL.createObjectURL(selectedScanFile);$('scanPreview').classList.remove('hidden');$('scanStatus').textContent='Photo selected. Tap Read Photo.'}
+};
+$('scanBtn').onclick=async()=>{
+ if(!selectedScanFile){$('scanStatus').textContent='Please select a photo first.';return}
+ $('scanStatus').textContent='Loading OCR engine and reading photo… please wait.';
+ $('scanBtn').disabled=true;
+ try{
+  if(!window.Tesseract){
+   await new Promise((resolve,reject)=>{let s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';s.onload=resolve;s.onerror=()=>reject(new Error('Could not load OCR engine. Check internet connection.'));document.head.appendChild(s)});
+  }
+  const result=await Tesseract.recognize(selectedScanFile,'eng',{logger:m=>{if(m.status)$('scanStatus').textContent=m.status+(m.progress?' '+Math.round(m.progress*100)+'%':'')}});
+  $('scanText').value=(result.data.text||'').trim();
+  $('scanStatus').textContent=$('scanText').value?'Photo reading finished. Please verify every digit and decimal.':'No readable text found. Try a clearer, well-lit photo.';
+ }catch(err){$('scanStatus').textContent='Scanner error: '+err.message}
+ finally{$('scanBtn').disabled=false}
+};
+$('clearScan').onclick=()=>{selectedScanFile=null;$('scanImage').value='';$('scanPreview').src='';$('scanPreview').classList.add('hidden');$('scanText').value='';$('scanStatus').textContent='Choose a photo to begin.'};
+$('useScan').onclick=()=>{let t=$('scanText').value.trim();if(!t){$('scanStatus').textContent='No recognised text to use.';return}$('question').value=t;$('scanStatus').textContent='Text copied to Assistant. Review it and edit into a clear calculation question.';document.querySelector('[data-page="assistant"]').click();$('question').focus()};
+
+$('clearHistory').onclick=()=>{if(confirm('Delete all saved history?')){history=[];localStorage.removeItem('sca_history');renderHistory()}};
+gst();business();emi();convert();renderHistory();
+</script></body></html>
