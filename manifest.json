@@ -1,0 +1,12 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "SmartCal AI",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "SmartCalc",
+  "start_url": "/",
+  "theme_color": "#101827",
+  "description": "SmartCalc AI is an all-in-one smart calculator, business tools and voice assistant"
+}
